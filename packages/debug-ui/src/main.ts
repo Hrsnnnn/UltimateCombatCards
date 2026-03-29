@@ -1,4 +1,4 @@
-import { GameEngine } from '@haunted/core'
+import { GameEngine, runAITurn } from '@haunted/core'
 import type { GameState, CardInstance, Faction } from '@haunted/core'
 import { renderState, renderLog } from './render.js'
 
@@ -14,6 +14,21 @@ let logCount = 0
 // currentPlayer 直接从 state.activePlayer 读，不再手动维护
 function currentPlayer(): Faction {
   return state.activePlayer
+}
+
+/**
+ * AI 自动执行非人类回合。
+ * 用 setTimeout 做短暂延迟，让 UI 先渲染再执行，视觉上更自然。
+ */
+function maybeRunAI(): void {
+  if (state.winner) return
+  if (state.phase === 'NONHUMAN_PLAY' || state.phase === 'NONHUMAN_TRICK') {
+    setTimeout(() => {
+      state = runAITurn(state)
+      selectedCard = null
+      refresh()
+    }, 600)
+  }
 }
 
 function onSelectCard(card: CardInstance): void {
@@ -65,6 +80,9 @@ function refresh(): void {
 
   // 选中法术后，高亮可点击的目标单位
   setupUnitTargetClicks()
+
+  // 如果现在是 AI 的回合，自动触发
+  maybeRunAI()
 }
 
 function setupUnitTargetClicks(): void {
@@ -72,7 +90,6 @@ function setupUnitTargetClicks(): void {
   if (selectedCard.definition.type !== 'SPELL') return
 
   const needsUnitTarget = selectedCard.definition.requiresTarget()
-
   if (!needsUnitTarget) return
 
   // 高亮棋盘上所有单位，等待玩家点击目标
