@@ -5,7 +5,60 @@
 
 ---
 
-## 2026-03-29
+## 2026-03-29（续）
+
+**[部署] Vercel 静态托管部署完成**
+- 项目成功部署至 Vercel，访问地址由 Vercel 分配（`*.vercel.app`）
+- 新增 `docs/Developer/Deployment.md`：记录 Vercel 正确配置与三个踩坑
+  - 坑1：pnpm v10 屏蔽 esbuild 安装脚本 → 在根 `package.json` 加 `pnpm.onlyBuiltDependencies`
+  - 坑2：Vercel UI Override 优先级高于 `vercel.json`，Root Directory 留空才能正确解析路径
+  - 坑3：`vite.config.ts` 用了 `__dirname`，ESM 环境下崩溃 → 删除该文件
+- 正确配置：Root Directory 留空，Output Directory = `packages/debug-ui/dist`
+- 影响文档：`Developer/Deployment.md`（新增）、`Sessions/Dev.md`（加引用）
+
+**[文档结构] 建立单一来源（Single Source of Truth）原则**
+- 确立文档分层规则：规则层（GameDesign.md）→ 索引层（CardsCommon.md）→ 实现层（DevFeatures.md）→ 导航层（CLAUDE.md）
+- 每条规则只在 GameDesign.md 定义，其他文件只做路由引用，不重复描述
+- 影响文档：`CLAUDE.md`（新增文档分层规则章节）
+
+**[文档结构] 修复四处文档不一致**
+- 传奇卡限制：`CardsCommon.md` 原写"最多4张" → 与 GameDesign.md 统一为"无张数限制"（当前已更新为最多4张，见下条）
+- 传奇卡限制重新确认：统一所有稀有度（含传奇）最多放4张，修正 GameDesign.md 原有的"传奇无限制"表述
+- 英雄血量：`GameDesign.md` 原标注"待确认" → 确认为20点，同步所有文件
+- 费用上限：`DevFeatures.md` §二代码块原写"上限10" → 修正为无上限
+- Alpha阶段关键词数量：`DevFeatures.md` §十六原写"16个" → 修正为23个
+- 影响文档：`GameDesign.md`、`DevFeatures.md`、`CardsCommon.md`、`CLAUDE.md`
+
+**[文档结构] 删除重复描述，改为路由引用**
+- `CLAUDE.md` 基础概念表：删除所有具体数值，改为指向 GameDesign.md 各章节
+- `CardsCommon.md`：删除卡牌类型表、稀有度表、触发时机表（完整描述），保留关键词分类名称索引
+- `DevFeatures.md` §一：参数表加来源列，顶部加权威来源声明
+- `DevFeatures.md` §七：关键词表从4列（含效果描述）精简为2列（关键词名称 + 实现要点）
+- 影响文档：`CLAUDE.md`、`CardsCommon.md`、`DevFeatures.md`
+
+**[文档结构] 卡牌数量不再在文档中静态维护**
+- 删除 `GameDesign.md` §九卡牌规模静态数字表
+- 新增 `docs/count-cards.mjs` 脚本，自动统计 Cards/ 目录实际卡牌数量
+- 原因：静态数字表与实际卡牌文件是两套平行真相，增删卡牌时极易产生不一致
+- 影响文档：`GameDesign.md`（§九改为路由）
+
+**[文档结构] 新增关键词"召唤（Conjure）"**
+- 效果：从符合条件的全卡池中随机选取一张牌加入手牌（非当前卡组）
+- 关键词总数：23 → 24个
+- 影响文档：`GameDesign.md` §七、`CardsCommon.md`、`DevFeatures.md` §七
+
+**[自动化] 新增 Claude Code Hook 文档一致性检查**
+- 新增 `docs/check-docs.mjs`：每次修改 docs/ 下 .md 文件后自动检查核心数值一致性
+- 新增 `docs/count-cards.mjs`：修改 Cards/ 下文件后自动输出最新卡牌统计
+- 配置 `.claude/settings.json` PostToolUse hook 触发上述脚本
+- 检查项：费用上限错误值、传奇卡错误限制、过时关键词数量、血量"待确认"残留
+
+**[文档结构] Heroes.md 与 Heroes_Powers.md 合并**
+- 原因：两文件描述同一对象（英雄）的不同侧面，查阅时需来回跳转，不利于维护
+- 变更：将 Heroes_Powers.md 内容合并入 Heroes.md，每位英雄一节（简介 + 备选 + 超能力）
+- Heroes_Powers.md 移至 `Deprecated/`
+- 影响文档：`GamePlay/Heroes.md`（全面重写）、`CLAUDE.md`、`Sessions/Gameplay.md`、`Sessions/Dev.md`
+
 
 **[代码架构] 卡牌系统从数据驱动重构为 OOP class 模式**
 - **变更前**：卡牌定义为 `CardDefinition` 对象字面量 + `EffectDefinition[]` 数组描述效果；`EffectSystem.triggerEffect()` 集中处理所有效果逻辑；效果靠 action type 字符串区分

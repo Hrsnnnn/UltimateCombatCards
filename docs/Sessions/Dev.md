@@ -34,6 +34,7 @@
 4. **`docs/Cards/Human/Units.md`** / **`Spells.md`** / **`Environments.md`** — 人类方卡牌数据（最新）
 5. **`docs/Cards/NonHuman/Units.md`** / **`Spells.md`** / **`Environments.md`** — 非人类方卡牌数据（最新）
 7. **`docs/CHANGELOG.md`** — 了解近期设计变更，避免实现已废弃的规则
+8. **`docs/Developer/Deployment.md`** — 部署流程与踩坑记录（Vercel 配置、微信公众号接入）
 
 > Ideas/ 下的文件是设计参考，程序 session 不需要读。
 > Pvzh/ 下的文件是 PVZH 原版参考，需要理解原版机制时才读。
