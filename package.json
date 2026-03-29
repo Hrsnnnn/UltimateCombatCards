@@ -8,6 +8,9 @@
     "test": "pnpm --filter './packages/*' test",
     "dev": "pnpm --filter @haunted/debug-ui dev"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
   "devDependencies": {
     "typescript": "^5.4.0"
   }
