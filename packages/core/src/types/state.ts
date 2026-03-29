@@ -75,6 +75,14 @@ export interface PendingTargetEffect {
   playerId: Faction
 }
 
+/** 游戏配置：决定玩家选择哪个阵营，另一方由 AI 控制 */
+export interface GameConfig {
+  /** 玩家控制的阵营（对立阵营由 AI 接管） */
+  playerFaction: Faction
+  /** 是否使用测试模式（费用全1，手牌更多） */
+  testMode: boolean
+}
+
 export type Action =
   | { type: 'PLAY_UNIT'; cardInstanceId: string; laneIndex: number }
   | { type: 'PLAY_SPELL'; cardInstanceId: string; targetInstanceId?: string; targetLane?: number }

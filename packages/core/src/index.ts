@@ -8,6 +8,7 @@ export type {
   LaneState,
   GameState,
   PendingTargetEffect,
+  GameConfig,
   Action,
 } from './types/state.js'
 export type { GameEvent } from './types/events.js'

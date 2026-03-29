@@ -292,8 +292,91 @@
     #log-content p { margin-bottom: 1px; }
     #log-content p.blank { height: 5px; }
 
-    /* ── Winner Overlay ── */
-    #winner-overlay {
+    /* ── Hero Select Screen ── */
+    #hero-select {
+      position: fixed;
+      inset: 0;
+      background: #1a1a2e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .select-box {
+      text-align: center;
+      padding: 40px 32px;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .select-box h1 {
+      font-size: 1.6em;
+      color: #ffd700;
+      margin-bottom: 8px;
+    }
+
+    .select-sub {
+      color: #888;
+      font-size: 13px;
+      margin-bottom: 32px;
+    }
+
+    .faction-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .faction-btn {
+      flex: 1;
+      max-width: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 20px 16px;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+      font-family: inherit;
+    }
+
+    .faction-btn:hover {
+      transform: translateY(-4px);
+    }
+
+    .human-btn {
+      background: #2a1f00;
+      border-color: #b8860b;
+      color: #ffd700;
+    }
+    .human-btn:hover { border-color: #ffd700; }
+
+    .nonhuman-btn {
+      background: #1e0a33;
+      border-color: #8a2be2;
+      color: #d480ff;
+    }
+    .nonhuman-btn:hover { border-color: #cc80ff; }
+
+    .faction-icon { font-size: 2em; }
+    .faction-name { font-size: 1.1em; font-weight: bold; }
+    .faction-hero { font-size: 11px; opacity: 0.7; }
+
+    .test-mode-row {
+      color: #888;
+      font-size: 12px;
+    }
+
+    .test-mode-row input {
+      margin-right: 6px;
+      cursor: pointer;
+    }
+
+    /* ── Winner Overlay ── */    #winner-overlay {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.8);
       display: none;
@@ -324,7 +407,36 @@
   </style>
 </head>
 <body>
-  <div id="game-area">
+
+  <!-- ── Hero Select Screen ── -->
+  <div id="hero-select">
+    <div class="select-box">
+      <h1>⚔️ The Haunted University</h1>
+      <p class="select-sub">选择你的阵营，开始对战</p>
+
+      <div class="faction-buttons">
+        <button id="btn-play-human" class="faction-btn human-btn">
+          <span class="faction-icon">🏛</span>
+          <span class="faction-name">人类</span>
+          <span class="faction-hero">亚历山大大帝</span>
+        </button>
+        <button id="btn-play-nonhuman" class="faction-btn nonhuman-btn">
+          <span class="faction-icon">👻</span>
+          <span class="faction-name">非人类</span>
+          <span class="faction-hero">玉皇大帝</span>
+        </button>
+      </div>
+
+      <div class="test-mode-row">
+        <label>
+          <input type="checkbox" id="test-toggle" />
+          🧪 测试模式（费用全1，5费起手）
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div id="game-area" style="display:none">
 
     <!-- Top: Opponent hero -->
     <div id="nonhuman-hero-bar" class="hero-bar nonhuman">
@@ -370,7 +482,7 @@
     <div class="winner-box">
       <h1 id="winner-text">胜利！</h1>
       <p id="winner-sub">—</p>
-      <button onclick="location.reload()">再来一局</button>
+      <button onclick="location.reload()">换阵营 / 再来一局</button>
     </div>
   </div>
 
