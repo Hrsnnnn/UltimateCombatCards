@@ -44,5 +44,5 @@
 
 - 设计文档有疑问时，以 `GameDesign.md` 为准，不自行假设
 - 若发现设计文档与实现存在冲突，记录问题并反馈给玩法 session，不擅自修改设计
-- 卡牌数据只读 v2 版本（Cards_Human_v2.md / Cards_NonHuman_v2.md）
+- 卡牌数据只读 Cards/ 下当前文件（Human/ 和 NonHuman/ 子目录）
 - 实现新功能前先检查 DevFeatures.md 中是否已有对应条目

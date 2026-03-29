@@ -76,8 +76,7 @@ docs/
 │       ├── Spells.md            ← 非人类方法术卡
 │       └── Environments.md      ← 非人类方环境卡
 ├── GamePlay/
-│   ├── Heroes.md                ← 英雄候选列表
-│   └── Heroes_Powers.md         ← 英雄超能力设计
+│   └── Heroes.md                ← 英雄设计（简介、属性、超能力，合并版）
 ├── Deprecated/                  ← 已归档的历史版本（仅供参考）
 ├── Ideas/
 │   ├── Characters.md            ← 角色候选池

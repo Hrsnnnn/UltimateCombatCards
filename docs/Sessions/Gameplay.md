@@ -29,8 +29,7 @@
 
 1. **`docs/GameDesign.md`** — 所有已敲定设计决策的详细版本，**每次必读**
 2. **`docs/GameModes.md`** — 游戏模式设计（VS AI / 特殊挑战 / PvP）
-3. **`docs/GamePlay/Heroes.md`** — 英雄列表
-3. **`docs/GamePlay/Heroes_Powers.md`** — 英雄超能力
+3. **`docs/GamePlay/Heroes.md`** — 英雄设计（简介、属性、超能力，合并版）
 4. **`docs/Cards/CardsCommon.md`** — 卡牌通用概念与关键词系统
 5. **`docs/Cards/Human/Units.md`** / **`Spells.md`** / **`Environments.md`** — 人类方卡牌（最新）
 6. **`docs/Cards/NonHuman/Units.md`** / **`Spells.md`** / **`Environments.md`** — 非人类方卡牌（最新）
