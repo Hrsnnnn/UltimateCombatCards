@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); if echo \"$file\" | grep -q 'docs/.*\\.md$'; then node docs/check-docs.mjs; fi",
+            "timeout": 10,
+            "statusMessage": "检查文档一致性..."
+          },
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); if echo \"$file\" | grep -q 'docs/Cards/'; then node docs/count-cards.mjs --hook; fi",
+            "timeout": 10,
+            "statusMessage": "更新卡牌统计..."
+          }
+        ]
+      }
+    ]
+  }
+}

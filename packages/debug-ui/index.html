@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>The Haunted University — Demo v0.1</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', 'PingFang SC', sans-serif;
+      font-size: 13px;
+      display: flex;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* ── Game Area ── */
+    #game-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* ── Hero Bars ── */
+    .hero-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+    }
+    .hero-bar.nonhuman {
+      background: #1e0a33;
+      border-bottom: 2px solid #8a2be2;
+    }
+    .hero-bar.human {
+      background: #2a1f00;
+      border-top: 2px solid #b8860b;
+    }
+
+    .hero-name {
+      font-weight: bold;
+      font-size: 12px;
+      min-width: 60px;
+      max-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+    .hero-hp-bar {
+      flex: 1;
+      background: #333;
+      border-radius: 4px;
+      height: 10px;
+      overflow: hidden;
+      min-width: 40px;
+    }
+    .hero-hp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #e74c3c, #c0392b);
+      transition: width 0.3s;
+    }
+    .hero-hp-fill.human { background: linear-gradient(90deg, #27ae60, #1e8449); }
+    .hero-hp-text { font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+    .hero-mana { font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+
+    .phase-badge {
+      padding: 2px 7px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 10px;
+      background: #2a4a80;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .phase-badge.NONHUMAN_PLAY  { background: #4a1a7a; }
+    .phase-badge.HUMAN_PLAY     { background: #7a4a1a; }
+    .phase-badge.NONHUMAN_TRICK { background: #6a1a6a; }
+    .phase-badge.COMBAT         { background: #7a1a1a; }
+
+    #btn-end-phase {
+      padding: 3px 10px;
+      border: none;
+      border-radius: 8px;
+      background: #2ecc71;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 11px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #btn-end-phase:hover:not(:disabled) { background: #27ae60; }
+    #btn-end-phase:disabled { background: #444; color: #666; cursor: not-allowed; }
+
+    /* ── Lanes (middle, takes all remaining space) ── */
+    #lanes {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      gap: 3px;
+      padding: 4px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .lane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      border: 1px solid #1e1e30;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Each lane: 1 part (opponent) + 2 parts (battle) + 1 part (mine) */
+    .lane-slot {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .lane-slot.nonhuman-side { background: #130820; border-bottom: 1px solid #2a1040; }
+    .lane-slot.human-side    { background: #201000; border-top: 1px solid #402000; }
+    .lane-slot:hover { filter: brightness(1.3); }
+    .lane-slot.highlighted {
+      outline: 2px solid #ffd700;
+      outline-offset: -2px;
+      background: rgba(255,215,0,0.08);
+    }
+
+    .lane-battle-area {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 3px 2px;
+      background: #0e0e1a;
+      border-top: 1px dashed #1c1c2c;
+      border-bottom: 1px dashed #1c1c2c;
+    }
+    .lane-label {
+      font-size: 9px;
+      color: #3a3a5a;
+      text-align: center;
+    }
+    .env-badge {
+      background: #0f3020;
+      border: 1px solid #2a6040;
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-size: 9px;
+      color: #4caf50;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+
+    /* ── Unit Card (field) — square placeholder ── */
+    .unit-card {
+      background: #16213e;
+      border: 1.5px solid #2a4a80;
+      border-radius: 5px;
+      padding: 3px;
+      width: 80%;
+      aspect-ratio: 1 / 1;
+      max-width: 52px;
+      max-height: 52px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 1px;
+    }
+    .unit-card.nonhuman { border-color: #6a2090; background: #200a30; }
+    .unit-card.ambushed { opacity: 0.5; border-style: dashed; }
+    .unit-card .unit-name  { font-weight: bold; font-size: 9px; line-height: 1.2; word-break: break-all; }
+    .unit-card .unit-stats { color: #aaa; font-size: 9px; }
+    .unit-card .unit-kw    { color: #ffd700; font-size: 8px; }
+
+    /* ── Human bottom: hero bar + hand ── */
+    #human-bottom {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Hand area ── */
+    #human-hand-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 5px 8px;
+      align-content: flex-start;
+      background: #12121e;
+    }
+
+    .hand-card {
+      flex: 0 0 calc(20% - 4px);  /* 5 per row */
+      min-width: 0;
+      background: #16213e;
+      border: 1.5px solid #2a4a80;
+      border-radius: 6px;
+      padding: 4px 5px;
+      cursor: pointer;
+      transition: transform 0.12s, border-color 0.12s;
+      user-select: none;
+      overflow: hidden;
+    }
+    .hand-card:hover:not(.insufficient) { transform: translateY(-3px); border-color: #4a9eff; }
+    .hand-card.selected  { border-color: #ffd700; background: #2a2a00; transform: translateY(-5px); }
+    .hand-card.nonhuman  { border-color: #6a2090; }
+    .hand-card.nonhuman.selected { border-color: #ff80ff; }
+    .hand-card .card-name  { font-weight: bold; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hand-card .card-cost  { color: #4af; font-size: 9px; }
+    .hand-card .card-stats { color: #aaa; font-size: 9px; }
+    .hand-card .card-kw    { color: #ffd700; font-size: 8px; }
+    .hand-card.insufficient { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Log Panel (desktop sidebar, hidden on mobile) ── */
+    #log-panel {
+      width: 260px;
+      flex-shrink: 0;
+      background: #0d1117;
+      border-left: 1px solid #21262d;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (max-width: 640px) {
+      #log-panel { display: none; }
+    }
+
+    #log-header {
+      padding: 6px 10px;
+      font-weight: bold;
+      font-size: 11px;
+      border-bottom: 1px solid #21262d;
+      color: #8b949e;
+      flex-shrink: 0;
+    }
+
+    /* Nonhuman hand inside log panel (debug) */
+    #nonhuman-hand-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      padding: 6px 8px;
+      border-bottom: 1px solid #21262d;
+      min-height: 32px;
+    }
+    #nonhuman-hand-area .hand-card {
+      flex: 0 0 calc(33.33% - 3px);
+      font-size: 9px;
+    }
+
+    #status-bar {
+      padding: 5px 10px;
+      font-size: 11px;
+      color: #8b949e;
+      border-bottom: 1px solid #21262d;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    #log-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 10px;
+      font-size: 10px;
+      line-height: 1.6;
+      color: #c9d1d9;
+    }
+    #log-content p { margin-bottom: 1px; }
+    #log-content p.blank { height: 5px; }
+
+    /* ── Winner Overlay ── */
+    #winner-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    #winner-overlay.show { display: flex; }
+    .winner-box {
+      background: #1a1a2e;
+      border: 2px solid #ffd700;
+      border-radius: 14px;
+      padding: 32px 48px;
+      text-align: center;
+    }
+    .winner-box h1 { font-size: 1.8em; color: #ffd700; margin-bottom: 8px; }
+    .winner-box p  { color: #aaa; margin-bottom: 16px; font-size: 13px; }
+    .winner-box button {
+      padding: 7px 22px;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-area">
+
+    <!-- Top: Opponent hero -->
+    <div id="nonhuman-hero-bar" class="hero-bar nonhuman">
+      <span class="hero-name" id="nonhuman-hero-name">—</span>
+      <div class="hero-hp-bar"><div class="hero-hp-fill" id="nonhuman-hp-fill" style="width:100%"></div></div>
+      <span class="hero-hp-text" id="nonhuman-hp-text">20/20</span>
+      <span class="hero-mana" id="nonhuman-mana">💜 0/0</span>
+    </div>
+
+    <!-- Middle: Battle lanes -->
+    <div id="lanes"></div>
+
+    <!-- Bottom: My hero + hand -->
+    <div id="human-bottom">
+      <div id="human-hero-bar" class="hero-bar human">
+        <span class="hero-name" id="human-hero-name">—</span>
+        <div class="hero-hp-bar"><div class="hero-hp-fill human" id="human-hp-fill" style="width:100%"></div></div>
+        <span class="hero-hp-text" id="human-hp-text">20/20</span>
+        <span class="hero-mana" id="human-mana">💛 0/0</span>
+        <span class="phase-badge" id="phase-badge">—</span>
+        <button id="btn-end-phase" disabled>结束阶段</button>
+      </div>
+      <div id="human-hand-area"></div>
+    </div>
+
+  </div>
+
+  <!-- Debug sidebar (desktop only) -->
+  <div id="log-panel">
+    <div id="log-header">📜 事件日志</div>
+    <!-- Nonhuman hand (debug visibility) -->
+    <div id="nonhuman-hand-area"></div>
+    <!-- Turn info + selection hint -->
+    <div id="status-bar">
+      <span>回合 <strong id="turn-display">1</strong></span>
+      <span id="selection-hint" style="color:#666;font-size:10px;flex:1;"></span>
+    </div>
+    <div id="log-content"></div>
+  </div>
+
+  <!-- Winner Overlay -->
+  <div id="winner-overlay">
+    <div class="winner-box">
+      <h1 id="winner-text">胜利！</h1>
+      <p id="winner-sub">—</p>
+      <button onclick="location.reload()">再来一局</button>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

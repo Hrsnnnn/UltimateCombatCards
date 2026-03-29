@@ -1,0 +1,14 @@
+{
+  "name": "haunted-university",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter './packages/*' build",
+    "build:deploy": "pnpm --filter @haunted/core build && pnpm --filter @haunted/debug-ui build",
+    "test": "pnpm --filter './packages/*' test",
+    "dev": "pnpm --filter @haunted/debug-ui dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
