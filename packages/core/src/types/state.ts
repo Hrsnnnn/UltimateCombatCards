@@ -75,10 +75,10 @@ export interface PendingTargetEffect {
   playerId: Faction
 }
 
-/** 游戏配置：决定玩家选择哪个阵营，另一方由 AI 控制 */
+/** 游戏配置：决定玩家控制哪个阵营，另一方由 AI 控制；'BOTH' = 单机双人调试模式 */
 export interface GameConfig {
-  /** 玩家控制的阵营（对立阵营由 AI 接管） */
-  playerFaction: Faction
+  /** 玩家控制的阵营。'BOTH' = 双方均由玩家操控（单机调试） */
+  playerFaction: Faction | 'BOTH'
   /** 是否使用测试模式（费用全1，手牌更多） */
   testMode: boolean
 }

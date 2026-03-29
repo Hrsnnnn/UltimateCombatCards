@@ -32,14 +32,16 @@ function setupHeroSelect(): void {
 
   const testToggle = document.getElementById('test-toggle') as HTMLInputElement | null
 
-  // "Play as Human" button
   document.getElementById('btn-play-human')?.addEventListener('click', () => {
     startGame({ playerFaction: 'HUMAN', testMode: testToggle?.checked ?? false })
   })
 
-  // "Play as Nonhuman" button
   document.getElementById('btn-play-nonhuman')?.addEventListener('click', () => {
     startGame({ playerFaction: 'NONHUMAN', testMode: testToggle?.checked ?? false })
+  })
+
+  document.getElementById('btn-play-both')?.addEventListener('click', () => {
+    startGame({ playerFaction: 'BOTH', testMode: testToggle?.checked ?? false })
   })
 }
 
@@ -49,13 +51,13 @@ function setupHeroSelect(): void {
 function isAIPhase(): boolean {
   if (!state || !config) return false
   const { playerFaction } = config
-  const aiFaction: Faction = playerFaction === 'HUMAN' ? 'NONHUMAN' : 'HUMAN'
+  if (playerFaction === 'BOTH') return false  // 双人调试：没有 AI
 
-  // AI controls NONHUMAN → triggers on NONHUMAN_PLAY / NONHUMAN_TRICK
-  // AI controls HUMAN → triggers on HUMAN_PLAY
-  if (aiFaction === 'NONHUMAN') {
+  if (playerFaction === 'HUMAN') {
+    // AI 控制非人类
     return state.phase === 'NONHUMAN_PLAY' || state.phase === 'NONHUMAN_TRICK'
   } else {
+    // AI 控制人类
     return state.phase === 'HUMAN_PLAY'
   }
 }

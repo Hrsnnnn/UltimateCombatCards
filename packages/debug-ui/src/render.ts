@@ -13,7 +13,7 @@ export function renderState(
   onEndPhase: () => void
 ): void {
   const playerFaction = config.playerFaction
-  const aiFaction = playerFaction === 'HUMAN' ? 'NONHUMAN' : 'HUMAN'
+  const aiFaction = playerFaction === 'HUMAN' ? 'NONHUMAN' : playerFaction === 'NONHUMAN' ? 'HUMAN' : null
   // ── Heroes ──
   renderHero('nonhuman', state)
   renderHero('human', state)
@@ -32,24 +32,32 @@ export function renderState(
   renderLanes(state, selectedCard, onPlayToLane)
 
   // ── Hands ──
-  // Only the active (player-controlled) faction's hand is interactive
-  const isNonhumanActive = (state.phase === 'NONHUMAN_PLAY' || state.phase === 'NONHUMAN_TRICK') && playerFaction === 'NONHUMAN'
-  const isHumanActive = state.phase === 'HUMAN_PLAY' && playerFaction === 'HUMAN'
+  // BOTH mode: both hands are interactive on their respective phases
+  // Single-faction mode: only the player's faction hand is interactive
+  const bothMode = playerFaction === 'BOTH'
+  const isNonhumanActive = (state.phase === 'NONHUMAN_PLAY' || state.phase === 'NONHUMAN_TRICK') &&
+    (bothMode || playerFaction === 'NONHUMAN')
+  const isHumanActive = state.phase === 'HUMAN_PLAY' &&
+    (bothMode || playerFaction === 'HUMAN')
   renderHand('nonhuman', state, state.nonhumanHand, selectedCard, isNonhumanActive, state.nonhumanMana.current, onSelectCard, state.phase)
   renderHand('human', state, state.humanHand, selectedCard, isHumanActive, state.humanMana.current, onSelectCard, state.phase)
 
   // ── End Phase button ──
-  // Only enabled when it's the human player's phase (AI phases auto-resolve)
-  const isPlayerPhase =
-    (playerFaction === 'HUMAN' && state.phase === 'HUMAN_PLAY') ||
-    (playerFaction === 'NONHUMAN' && (state.phase === 'NONHUMAN_PLAY' || state.phase === 'NONHUMAN_TRICK'))
+  // BOTH mode: always enabled during non-combat phases
+  // Single-faction mode: only enabled during the player's own phase
+  const isPlayerPhase = bothMode
+    ? state.phase !== 'COMBAT'
+    : (playerFaction === 'HUMAN' && state.phase === 'HUMAN_PLAY') ||
+      (playerFaction === 'NONHUMAN' && (state.phase === 'NONHUMAN_PLAY' || state.phase === 'NONHUMAN_TRICK'))
   const canEnd = isPlayerPhase && !state.winner
   const btn = el('btn-end-phase') as HTMLButtonElement
   btn.disabled = !canEnd
   btn.onclick = onEndPhase
 
   // ── Active player label ──
-  const activeLabel = playerFaction === 'HUMAN' ? '人类回合' : '非人类回合'
+  const activeLabel = bothMode
+    ? (state.phase === 'HUMAN_PLAY' ? '人类回合' : '非人类回合')
+    : playerFaction === 'HUMAN' ? '人类回合' : '非人类回合'
   // ── Selection hint ──
   const hint = el('selection-hint')
   if (selectedCard) {
@@ -61,7 +69,7 @@ export function renderState(
   } else {
     if (state.phase === 'COMBAT') {
       hint.textContent = '战斗结算中…'
-    } else if (!isPlayerPhase) {
+    } else if (!isPlayerPhase && aiFaction) {
       hint.textContent = `🤖 AI（${aiFaction === 'HUMAN' ? '人类' : '非人类'}）正在思考…`
     } else {
       hint.textContent = `${activeLabel} — 点击手牌选择，或结束阶段`
