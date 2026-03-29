@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm --filter @haunted/core build && pnpm --filter @haunted/debug-ui build",
+  "buildCommand": "pnpm --filter @haunted/core build && pnpm --filter @haunted/debug-ui build",
   "outputDirectory": "packages/debug-ui/dist",
   "installCommand": "pnpm install",
   "framework": null
